@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import { Canvas } from "@react-three/fiber";
 import { content } from "@/data/content";
 import { useSceneProgress } from "@/hooks/useSceneProgress";
 import { Lanterns } from "@/components/three/Lanterns";
@@ -32,9 +32,17 @@ export function Scene10Forever() {
         <div className="absolute inset-0 bg-gradient-to-b from-deep-night/60 via-velvet-purple/40 to-deep-night/80" />
       </div>
 
-      {/* 3D rising lanterns */}
+      {/* 3D rising lanterns — MUST be inside Canvas (uses useFrame) */}
       <div className="canvas-container">
-        <Lanterns count={20} upward={true} />
+        <Canvas
+          camera={{ position: [0, 0, 10], fov: 50 }}
+          gl={{ alpha: true, antialias: true }}
+          style={{ background: "transparent" }}
+        >
+          <ambientLight intensity={0.6} color="#C9A8FF" />
+          <pointLight position={[0, 5, 5]} intensity={1} color="#E8C97A" />
+          <Lanterns count={20} upward={true} />
+        </Canvas>
       </div>
 
       {/* Fireworks */}

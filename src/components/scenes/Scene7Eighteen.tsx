@@ -4,13 +4,14 @@ import { motion } from "framer-motion";
 import { content } from "@/data/content";
 import { useSceneProgress } from "@/hooks/useSceneProgress";
 import { useRef } from "react";
+import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Canvas } from "@react-three/fiber";
 import { Float, Sparkles } from "@react-three/drei";
 
 // 18 orbiting roses (pure 3D)
 function OrbitingRoses() {
-  const groupRef = useRef<{ rotation: { y: number } } | null>(null);
+  const groupRef = useRef<THREE.Group>(null);
 
   useFrame(({ clock }) => {
     if (groupRef.current) {
@@ -19,7 +20,7 @@ function OrbitingRoses() {
   });
 
   return (
-    <group ref={groupRef as never}>
+    <group ref={groupRef}>
       {Array.from({ length: 18 }).map((_, i) => {
         const angle = (i / 18) * Math.PI * 2;
         const radius = 3.2;
