@@ -9,14 +9,9 @@ interface Scene3DProps {
   children: ReactNode;
   cameraPosition?: [number, number, number];
   enableBloom?: boolean;
-  /** Optional PostFX element — pass <PostFX/> if you want bloom. */
   effects?: ReactNode;
 }
 
-/**
- * Error boundary that catches environment-map load failures and gracefully
- * falls back to a simpler lighting setup instead of crashing the whole app.
- */
 class EnvironmentErrorBoundary extends Component<
   { children: ReactNode; fallback: ReactNode },
   { hasError: boolean }
@@ -31,8 +26,11 @@ class EnvironmentErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // eslint-disable-next-line no-console
-    console.warn("Environment map failed to load; falling back to lights.", error, errorInfo);
+    console.warn(
+      "Environment map failed to load; falling back to lights.",
+      error,
+      errorInfo
+    );
   }
 
   render() {
@@ -40,16 +38,6 @@ class EnvironmentErrorBoundary extends Component<
   }
 }
 
-/**
- * Reusable 3D Canvas wrapper. Sets up camera, lighting, environment.
- * Adapts pixel ratio for low-end devices automatically.
- *
- * FIX: The `preset="night"` prop was downloading the HDRI from
- * raw.githack.com, which is frequently blocked / times out in Pakistan and
- * other regions. We now serve the same file locally from /public/hdri and
- * wrap it in an error boundary so a single failed texture can never bring
- * the whole page down.
- */
 export function Scene3D({
   children,
   cameraPosition = [0, 0, 5],
@@ -67,33 +55,44 @@ export function Scene3D({
         const canvas = gl.domElement;
         canvas.addEventListener("webglcontextlost", (e) => {
           e.preventDefault();
-          // eslint-disable-next-line no-console
           console.warn("WebGL context lost; renderer will try to restore.");
         });
       }}
     >
       <Suspense fallback={null}>
-        {/* Ambient + key lighting */}
         <ambientLight intensity={0.4} color="#C9A8FF" />
-        <directionalLight position={[5, 5, 5]} intensity={1.2} color="#FFFFFF" />
-        <directionalLight position={[-5, 3, -5]} intensity={0.6} color="#5B2A86" />
+        <directionalLight
+          position={[5, 5, 5]}
+          intensity={1.2}
+          color="#FFFFFF"
+        />
+        <directionalLight
+          position={[-5, 3, -5]}
+          intensity={0.6}
+          color="#5B2A86"
+        />
         <pointLight position={[0, 3, 2]} intensity={0.8} color="#E8C97A" />
 
-        {/* Environment for nice reflections — self-hosted, not githack */}
         <EnvironmentErrorBoundary
           fallback={
             <>
               <color attach="background" args={["#050210"]} />
               <ambientLight intensity={0.6} color="#C9A8FF" />
-              <directionalLight position={[5, 5, 5]} intensity={1.5} color="#FFFFFF" />
+              <directionalLight
+                position={[5, 5, 5]}
+                intensity={1.5}
+                color="#FFFFFF"
+              />
             </>
           }
         >
-          <Environment files="/hdri/dikhololo_night_1k.hdr" background={false} />
+          <Environment
+            files="/hdri/dikhololo_night_1k.hdr"
+            background={false}
+          />
         </EnvironmentErrorBoundary>
 
         {children}
-
         {effects}
       </Suspense>
     </Canvas>
